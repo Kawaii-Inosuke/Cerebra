@@ -20,8 +20,10 @@ on:
         type: string
         required: true
 
+# Write access only so it can see draft releases (GitHub hides drafts from read-only tokens).
+# It never changes the release: the package goes to this run's Artifacts.
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   msix:
