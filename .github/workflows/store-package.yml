@@ -1,0 +1,53 @@
+name: Microsoft Store package
+
+# Builds Cerebra's Microsoft Store package (MSIX) from a release's Windows .msi and attaches it to
+# this run as a download ("Artifacts" on the run's page). It is NOT added to the GitHub release: an
+# unsigned .msix can't be installed by double-clicking; it's only for uploading to Partner Center,
+# where the Store signs it.
+#
+# Runs after every release (called from release.yml), or by hand: Actions → Microsoft Store package
+# → Run workflow → enter a release tag such as v0.1.0.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to package (e.g. v0.1.0). The release may still be a draft."
+        required: true
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  msix:
+    name: MSIX for the Microsoft Store
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Download the Windows installer from the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path msi | Out-Null
+          gh release download $env:TAG --repo $env:GITHUB_REPOSITORY --pattern '*.msi' --dir msi
+          Get-ChildItem msi
+      - name: Build the MSIX
+        env:
+          TAG: ${{ inputs.tag }}
+        shell: pwsh
+        run: |
+          $version = $env:TAG -replace '^v', ''
+          $msi = (Get-ChildItem msi -Filter *.msi | Select-Object -First 1).FullName
+          ./packaging/msix/build-msix.ps1 -Msi $msi -Version $version -Out dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cerebra-msix-${{ inputs.tag }}
+          path: dist/*.msix
+          if-no-files-found: error

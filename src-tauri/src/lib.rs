@@ -95,8 +95,29 @@ fn stable_exe(appimage: Option<String>, current: PathBuf) -> PathBuf {
     }
 }
 
+/// The Microsoft Store version runs from `C:\Program Files\WindowsApps\…`, which other apps may not
+/// start programs from. Its package registers the execution alias `cerebra.exe`
+/// (`packaging/msix/AppxManifest.xml`), which Windows places in `%LOCALAPPDATA%\Microsoft\WindowsApps`.
+fn store_alias(current: &Path, local_appdata: Option<String>) -> Option<PathBuf> {
+    let path = current.to_string_lossy().to_ascii_lowercase().replace('/', "\\");
+    let packaged = path.contains("\\windowsapps\\");
+    let base = local_appdata.filter(|d| !d.is_empty())?;
+    packaged.then(|| {
+        // Built by hand so the result is a Windows path on every OS (the tests run on Linux too).
+        PathBuf::from(format!(
+            "{}\\Microsoft\\WindowsApps\\cerebra.exe",
+            base.trim_end_matches(['\\', '/'])
+        ))
+    })
+}
+
 fn app_exe() -> PathBuf {
     let current = std::env::current_exe().unwrap_or_else(|_| PathBuf::from("cerebra"));
+    if cfg!(windows)
+        && let Some(alias) = store_alias(&current, std::env::var("LOCALAPPDATA").ok())
+    {
+        return alias;
+    }
     stable_exe(std::env::var("APPIMAGE").ok(), current)
 }
 
@@ -680,6 +701,25 @@ mod tests {
         );
         assert_eq!(stable_exe(None, mount.clone()), mount);
         assert_eq!(stable_exe(Some(String::new()), mount.clone()), mount);
+    }
+
+    #[test]
+    fn store_install_uses_the_execution_alias() {
+        let packaged =
+            PathBuf::from(r"C:\Program Files\WindowsApps\KawaiiInosuke.Cerebra_0.1.0.0_x64__abc\Cerebra.exe");
+        assert_eq!(
+            store_alias(&packaged, Some(r"C:\Users\me\AppData\Local".into())),
+            Some(PathBuf::from(
+                r"C:\Users\me\AppData\Local\Microsoft\WindowsApps\cerebra.exe"
+            ))
+        );
+        // A normal install (MSI/EXE) or a missing LOCALAPPDATA keeps the real path.
+        let normal = PathBuf::from(r"C:\Program Files\Cerebra\Cerebra.exe");
+        assert_eq!(
+            store_alias(&normal, Some(r"C:\Users\me\AppData\Local".into())),
+            None
+        );
+        assert_eq!(store_alias(&packaged, None), None);
     }
 
     #[test]
