@@ -14,6 +14,7 @@ export const LINKS = {
   latest: `${REPO_URL}/releases/latest`,
   docs: `${REPO_URL}/tree/main/docs#readme`,
   issues: `${REPO_URL}/issues`,
+  privacy: `${REPO_URL}/blob/main/docs/PRIVACY.md`,
 } as const;
 
 /** The running app's version: Tauri's in the desktop app, the build's in the browser preview. */

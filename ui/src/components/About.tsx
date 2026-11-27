@@ -151,6 +151,9 @@ export function AboutDialog({ open, onOpenChange }: { open: boolean; onOpenChang
                   <Button size="sm" onClick={() => setPage("notices")}>
                     <FileText className="size-3.5" aria-hidden /> Third-party notices
                   </Button>
+                  <Button size="sm" onClick={link(LINKS.privacy)}>
+                    <ShieldCheck className="size-3.5" aria-hidden /> Privacy policy
+                  </Button>
                 </div>
               </section>
 

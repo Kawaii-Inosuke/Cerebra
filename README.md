@@ -78,6 +78,11 @@ Design docs are in [`docs/`](docs/README.md): product, architecture, data model,
 the Claude/Codex connector, security, share files and the roadmap. Decisions made while building are in
 [`DECISIONS.md`](DECISIONS.md).
 
+## Privacy
+
+Cerebra collects nothing: no account, no analytics, no server. Your notes and keys stay on your computer,
+and text only goes to the AI services you set up yourself. Details: [privacy policy](docs/PRIVACY.md).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Please read the clean-room rule there before working on the link engine.

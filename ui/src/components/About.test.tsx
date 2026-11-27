@@ -61,6 +61,8 @@ describe("About window", () => {
     renderApp(<AboutDialog open onOpenChange={() => {}} />, api);
     await userEvent.click(await screen.findByRole("button", { name: /Check for updates/ }));
     expect(api.openExternal).toHaveBeenCalledWith(LINKS.latest);
+    await userEvent.click(screen.getByRole("button", { name: /Privacy policy/ }));
+    expect(api.openExternal).toHaveBeenCalledWith(LINKS.privacy);
     await userEvent.click(screen.getByRole("button", { name: /Report a problem/ }));
     expect(vi.mocked(api.openExternal).mock.calls.at(-1)?.[0]).toMatch(/\/issues\/new\?body=/);
   });
