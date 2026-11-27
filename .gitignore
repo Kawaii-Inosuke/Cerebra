@@ -31,3 +31,6 @@
 
 # Browser test screenshots
 .playwright-mcp/
+
+# Microsoft Store screenshots and artwork (made locally, not part of the source)
+/store-assets/
