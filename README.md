@@ -35,6 +35,11 @@ Then ask Claude Desktop or Codex about everything you know, answered from your o
 Download the installer for your system from the [Releases](../../releases) page, then see
 "First launch" below (builds aren't code-signed yet).
 
+**Code signing:** Windows releases are signed through the [SignPath Foundation](https://signpath.org)
+(free code signing for open-source projects, provided by [SignPath.io](https://about.signpath.io);
+our application is pending). Until then, Windows builds are unsigned. See the
+[code signing policy](CODE_SIGNING_POLICY.md).
+
 ## Build from source
 
 You need [Rust](https://rustup.rs) (stable), [Node.js](https://nodejs.org) 20+, and
