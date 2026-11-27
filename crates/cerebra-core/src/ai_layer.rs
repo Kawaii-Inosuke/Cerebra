@@ -394,9 +394,19 @@ fn path_of(root: &Path) -> PathBuf {
 
 struct Lock(PathBuf);
 
+/// Someone else holds the lock (or is just letting go of it). On Windows, creating the lock file
+/// while the previous holder is still deleting it fails with "access denied" for a moment.
+fn lock_busy(kind: std::io::ErrorKind) -> bool {
+    matches!(
+        kind,
+        std::io::ErrorKind::AlreadyExists | std::io::ErrorKind::PermissionDenied
+    )
+}
+
 impl Lock {
     fn take(root: &Path) -> Result<Lock, String> {
         let path = root.join(crate::session::DATA_DIR).join("ai-layer.lock");
+        let mut last_error = None;
         for _ in 0..500 {
             match std::fs::OpenOptions::new()
                 .write(true)
@@ -404,7 +414,13 @@ impl Lock {
                 .open(&path)
             {
                 Ok(_) => return Ok(Lock(path)),
-                Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+                Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => {
+                    // Usually a lock being released; a folder we really can't write to keeps failing.
+                    last_error = Some(e);
+                    std::thread::sleep(Duration::from_millis(10));
+                }
+                Err(e) if lock_busy(e.kind()) => {
+                    last_error = None;
                     let stale = std::fs::metadata(&path)
                         .and_then(|m| m.modified())
                         .ok()
@@ -419,7 +435,10 @@ impl Lock {
                 Err(e) => return Err(format!("Couldn't lock the AI layer: {e}")),
             }
         }
-        Err("The AI layer is busy; try again".into())
+        match last_error {
+            Some(e) => Err(format!("Couldn't lock the AI layer: {e}")),
+            None => Err("The AI layer is busy; try again".into()),
+        }
     }
 }
 
@@ -685,6 +704,15 @@ mod tests {
             h.join().unwrap();
         }
         assert_eq!(AiLayer::load(&root).connections.len(), 40);
+    }
+
+    #[test]
+    fn lock_waits_while_another_save_is_releasing_it() {
+        use std::io::ErrorKind;
+        // Windows says "access denied" while the lock file of the previous save is being deleted.
+        assert!(lock_busy(ErrorKind::AlreadyExists));
+        assert!(lock_busy(ErrorKind::PermissionDenied));
+        assert!(!lock_busy(ErrorKind::NotFound));
     }
 
     #[test]
