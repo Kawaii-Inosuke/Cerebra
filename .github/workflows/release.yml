@@ -16,7 +16,7 @@ jobs:
     name: Tag matches the app version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Check
         # A manual run (no tag) only checks that the files agree.
         run: node scripts/bump-version.mjs --check ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
@@ -31,12 +31,12 @@ jobs:
           - name: Linux
             os: ubuntu-24.04
           - name: macOS (Apple Silicon)
-            os: macos-14
+            os: macos-latest
           - name: Windows
             os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: System libraries (Linux)
         if: runner.os == 'Linux'
         run: |
