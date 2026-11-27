@@ -1,0 +1,20 @@
+{
+  "Start.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Target.md"
+    ],
+    "tags": [],
+    "unresolved": []
+  },
+  "Target.md": {
+    "aliases": [],
+    "backlinks": [
+      "Start.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  }
+}

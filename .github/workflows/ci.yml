@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  engine:
+    name: Engine + CLI (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy -p cerebra-core -p cerebra-cli --all-targets -- -D warnings
+      - run: cargo test -p cerebra-core -p cerebra-cli
+
+  agents:
+    name: Agents (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --directory agents
+      - run: uv run --directory agents ruff check .
+      - run: uv run --directory agents ruff format --check .
+      - run: uv run --directory agents pytest -q
+
+  ui:
+    name: UI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Versions agree everywhere
+        run: npm run test:scripts && node scripts/bump-version.mjs --check
+
+  desktop:
+    name: Desktop shell (Linux)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: System libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: astral-sh/setup-uv@v6
+      - run: npm ci && npm run build
+      - run: node scripts/build-sidecar.mjs
+      - run: cargo clippy -p cerebra-app --all-targets -- -D warnings
+      - run: cargo test -p cerebra-app

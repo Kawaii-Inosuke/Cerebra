@@ -1,0 +1,40 @@
+{
+  "Sub/Here.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Sub/Neighbour.md",
+      "Top.md",
+      "With Space.md"
+    ],
+    "tags": [],
+    "unresolved": []
+  },
+  "Sub/Neighbour.md": {
+    "aliases": [],
+    "backlinks": [
+      "Sub/Here.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "Top.md": {
+    "aliases": [],
+    "backlinks": [
+      "Sub/Here.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "With Space.md": {
+    "aliases": [],
+    "backlinks": [
+      "Sub/Here.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  }
+}

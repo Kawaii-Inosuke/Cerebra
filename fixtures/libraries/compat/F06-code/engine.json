@@ -1,0 +1,58 @@
+{
+  "Code.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Indented.md",
+      "RealLink.md"
+    ],
+    "tags": [],
+    "unresolved": []
+  },
+  "InComment.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "Indented.md": {
+    "aliases": [],
+    "backlinks": [
+      "Code.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "NotLink1.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "NotLink2.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "NotLink3.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "RealLink.md": {
+    "aliases": [],
+    "backlinks": [
+      "Code.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  }
+}

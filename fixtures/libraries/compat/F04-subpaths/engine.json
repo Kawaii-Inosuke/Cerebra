@@ -1,0 +1,20 @@
+{
+  "Doc.md": {
+    "aliases": [],
+    "backlinks": [
+      "Other.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "Other.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Doc.md"
+    ],
+    "tags": [],
+    "unresolved": []
+  }
+}

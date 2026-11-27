@@ -1,0 +1,33 @@
+# Build output
+/target/
+/ui/dist/
+/node_modules/
+/src-tauri/gen/
+
+# Local AI models (downloaded by scripts/fetch-models.mjs)
+/models/
+
+# Secrets and local state: never commit
+.env
+.env.*
+*.pem
+*.key
+.cerebra/
+*.db
+*.db-*
+*.log
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Built agents sidecar (scripts/build-sidecar.mjs)
+/src-tauri/binaries/
+
+# Python sidecar build leftovers (PyInstaller)
+/agents/build/
+/agents/dist/
+
+# Browser test screenshots
+.playwright-mcp/

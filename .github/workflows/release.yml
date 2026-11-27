@@ -1,0 +1,96 @@
+name: Release
+
+# Builds the installers for Windows, macOS and Linux when a version tag (v1.2.3) is pushed,
+# and attaches them to a draft GitHub Release with SHA-256 sums. Costs nothing on a public repo.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    name: Tag matches the app version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check
+        # A manual run (no tag) only checks that the files agree.
+        run: node scripts/bump-version.mjs --check ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+
+  build:
+    name: ${{ matrix.name }}
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-24.04
+          - name: macOS (Apple Silicon)
+            os: macos-14
+          - name: Windows
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: System libraries (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: astral-sh/setup-uv@v6
+      - run: npm ci
+      - name: Build the agents sidecar
+        run: node scripts/build-sidecar.mjs
+      - name: Build and publish installers
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # macOS: free ad-hoc signing only (no paid Apple certificate; see README "First launch").
+          APPLE_SIGNING_IDENTITY: "-"
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Cerebra ${{ github.ref_name }}
+          releaseBody: |
+            See CHANGELOG.md for what's new.
+
+            **First launch:** builds aren't code-signed yet. Windows: "More info" → "Run anyway".
+            macOS: System Settings → Privacy & Security → "Open Anyway". Linux: make the AppImage executable.
+            Check your download against SHA256SUMS.txt.
+          releaseDraft: true
+          prerelease: false
+
+  checksums:
+    name: SHA-256 sums
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release assets and publish sums
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          mkdir assets && cd assets
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*'
+          sha256sum * > ../SHA256SUMS.txt
+          cd .. && gh release upload "$TAG" SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --clobber
+
+  # Windows signing through the SignPath Foundation (free for open-source projects). Turn on by
+  # setting the repository variable SIGNPATH_ENABLED=true once the project has been accepted.
+  signpath:
+    name: Windows signing (SignPath)
+    needs: build
+    if: vars.SIGNPATH_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Submit the Windows artifacts with signpath/github-action-submit-signing-request (configured after acceptance)."

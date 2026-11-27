@@ -1,0 +1,24 @@
+{
+  "Embedded.md": {
+    "aliases": [],
+    "backlinks": [
+      "Host.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "Host.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Embedded.md",
+      "doc.pdf",
+      "pic.png"
+    ],
+    "tags": [],
+    "unresolved": [
+      "nothere.png"
+    ]
+  }
+}

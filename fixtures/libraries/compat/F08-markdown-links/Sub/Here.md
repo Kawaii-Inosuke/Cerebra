@@ -1,0 +1,7 @@
+Relative: [same folder](Neighbour.md)
+Up: [parent](../Top.md)
+Encoded: [encoded](../With%20Space.md)
+Angle: [angle](<../With Space.md>)
+Heading: [heading](../Top.md#Section)
+External: [web](https://example.com)
+Bare name: [bare](Top.md)

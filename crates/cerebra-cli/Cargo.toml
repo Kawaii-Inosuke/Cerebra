@@ -1,0 +1,24 @@
+[package]
+name = "cerebra-cli"
+description = "Command-line access to Cerebra's knowledge engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "cerebra"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.104"
+cerebra-core = { path = "../cerebra-core" }
+clap = { version = "4.6.9", features = ["derive"] }
+serde_json = "1.0.154"
+tiny_http = "0.12.0"
+
+[dev-dependencies]
+assert_cmd = "2"
+tempfile = "3.27.0"

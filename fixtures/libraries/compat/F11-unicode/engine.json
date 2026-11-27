@@ -1,0 +1,42 @@
+{
+  "Café Plan.md": {
+    "aliases": [],
+    "backlinks": [
+      "Links.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "Emoji 🚀 Note.md": {
+    "aliases": [],
+    "backlinks": [
+      "Links.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "Links.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Café Plan.md",
+      "Emoji 🚀 Note.md",
+      "日本語ノート.md"
+    ],
+    "tags": [
+      "täg"
+    ],
+    "unresolved": []
+  },
+  "日本語ノート.md": {
+    "aliases": [],
+    "backlinks": [
+      "Links.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  }
+}

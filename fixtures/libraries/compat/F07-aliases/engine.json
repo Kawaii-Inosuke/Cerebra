@@ -1,0 +1,25 @@
+{
+  "Real Name.md": {
+    "aliases": [
+      "Nickname",
+      "Other Name"
+    ],
+    "backlinks": [
+      "User.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "User.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Real Name.md"
+    ],
+    "tags": [],
+    "unresolved": [
+      "Nickname"
+    ]
+  }
+}

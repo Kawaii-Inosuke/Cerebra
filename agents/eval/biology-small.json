@@ -1,0 +1,125 @@
+{
+  "description": "Connections a careful student would make between the notes in fixtures/libraries/biology-small. Pairs are unordered unless the type is directional. Written for the project (MIT).",
+  "good": [
+    [
+      "Osmosis",
+      "Diffusion",
+      "example_of"
+    ],
+    [
+      "Osmosis",
+      "Cell Membrane",
+      "builds_on"
+    ],
+    [
+      "Diffusion",
+      "Cell Membrane",
+      "builds_on"
+    ],
+    [
+      "Active Transport",
+      "Diffusion",
+      "contrasts"
+    ],
+    [
+      "Active Transport",
+      "ATP",
+      "builds_on"
+    ],
+    [
+      "Active Transport",
+      "Plant Transport",
+      "explains"
+    ],
+    [
+      "Plant Transport",
+      "Osmosis",
+      "example_of"
+    ],
+    [
+      "Gas Exchange",
+      "Diffusion",
+      "example_of"
+    ],
+    [
+      "Aerobic Respiration",
+      "ATP",
+      "explains"
+    ],
+    [
+      "Aerobic Respiration",
+      "Anaerobic Respiration",
+      "contrasts"
+    ],
+    [
+      "Aerobic Respiration",
+      "Cell Structure",
+      "part_of"
+    ],
+    [
+      "Photosynthesis",
+      "Cell Structure",
+      "part_of"
+    ],
+    [
+      "Photosynthesis",
+      "Aerobic Respiration",
+      "contrasts"
+    ],
+    [
+      "Enzymes",
+      "Homeostasis",
+      "explains"
+    ],
+    [
+      "DNA",
+      "Protein Synthesis",
+      "explains"
+    ],
+    [
+      "Protein Synthesis",
+      "Enzymes",
+      "explains"
+    ],
+    [
+      "Mitosis",
+      "Meiosis",
+      "contrasts"
+    ],
+    [
+      "Mitosis",
+      "DNA",
+      "builds_on"
+    ],
+    [
+      "Blood Glucose",
+      "Homeostasis",
+      "example_of"
+    ],
+    [
+      "Blood Glucose",
+      "Aerobic Respiration",
+      "explains"
+    ],
+    [
+      "Exercise",
+      "Anaerobic Respiration",
+      "cause_effect"
+    ],
+    [
+      "Exercise",
+      "Gas Exchange",
+      "related"
+    ],
+    [
+      "Osmosis",
+      "Plant Transport",
+      "explains"
+    ],
+    [
+      "DNA",
+      "Cell Structure",
+      "part_of"
+    ]
+  ]
+}

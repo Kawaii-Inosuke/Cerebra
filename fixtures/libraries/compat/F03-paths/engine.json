@@ -1,0 +1,30 @@
+{
+  "Courses/Biology/Plan.md": {
+    "aliases": [],
+    "backlinks": [
+      "Linker.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "Courses/Physics/Plan.md": {
+    "aliases": [],
+    "backlinks": [
+      "Linker.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "Linker.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Courses/Biology/Plan.md",
+      "Courses/Physics/Plan.md"
+    ],
+    "tags": [],
+    "unresolved": []
+  }
+}

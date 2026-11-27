@@ -1,0 +1,30 @@
+{
+  "Linked From Property.md": {
+    "aliases": [],
+    "backlinks": [
+      "Props.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "Props.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Linked From Property.md",
+      "Second.md"
+    ],
+    "tags": [],
+    "unresolved": []
+  },
+  "Second.md": {
+    "aliases": [],
+    "backlinks": [
+      "Props.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  }
+}

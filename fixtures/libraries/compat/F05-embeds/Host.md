@@ -1,0 +1,6 @@
+Note embed: ![[Embedded]]
+Heading embed: ![[Embedded#Part]]
+Image: ![[pic.png]]
+Sized image: ![[pic.png|200]]
+Missing image: ![[nothere.png]]
+PDF: ![[doc.pdf]]

@@ -1,0 +1,5 @@
+Full: [[Courses/Biology/Plan]]
+Partial: [[Physics/Plan]]
+With .md: [[Courses/Biology/Plan.md]]
+Bare (ambiguous): [[Plan]]
+Wrong case: [[courses/biology/plan]]

@@ -1,0 +1,55 @@
+{
+  "A/Dup.md": {
+    "aliases": [],
+    "backlinks": [
+      "A/FromA.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "A/FromA.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "A/Dup.md"
+    ],
+    "tags": [],
+    "unresolved": []
+  },
+  "B/C/Dup.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "B/FromB.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Dup.md"
+    ],
+    "tags": [],
+    "unresolved": []
+  },
+  "Dup.md": {
+    "aliases": [],
+    "backlinks": [
+      "B/FromB.md",
+      "FromRoot.md"
+    ],
+    "outgoing": [],
+    "tags": [],
+    "unresolved": []
+  },
+  "FromRoot.md": {
+    "aliases": [],
+    "backlinks": [],
+    "outgoing": [
+      "Dup.md"
+    ],
+    "tags": [],
+    "unresolved": []
+  }
+}
