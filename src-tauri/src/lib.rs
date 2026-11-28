@@ -329,7 +329,7 @@ mod store_update {
         pub fn check(window: isize) -> Result<Option<String>, String> {
             let run = || -> windows::core::Result<Option<String>> {
                 let ctx = context(window)?;
-                let updates = ctx.GetAppAndOptionalStorePackageUpdatesAsync()?.get()?;
+                let updates = ctx.GetAppAndOptionalStorePackageUpdatesAsync()?.join()?;
                 if updates.Size()? == 0 {
                     return Ok(None);
                 }
@@ -342,13 +342,13 @@ mod store_update {
         pub fn install(window: isize) -> Result<(), String> {
             let run = || -> windows::core::Result<bool> {
                 let ctx = context(window)?;
-                let updates = ctx.GetAppAndOptionalStorePackageUpdatesAsync()?.get()?;
+                let updates = ctx.GetAppAndOptionalStorePackageUpdatesAsync()?.join()?;
                 if updates.Size()? == 0 {
                     return Ok(true);
                 }
                 let result = ctx
                     .RequestDownloadAndInstallStorePackageUpdatesAsync(&updates)?
-                    .get()?;
+                    .join()?;
                 Ok(result.OverallState()? == StorePackageUpdateState::Completed)
             };
             match run() {
