@@ -4,7 +4,7 @@ members = ["crates/cerebra-core", "crates/cerebra-cli", "src-tauri"]
 default-members = ["crates/cerebra-core", "crates/cerebra-cli"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.95"
 license = "MIT"

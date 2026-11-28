@@ -10,9 +10,8 @@
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-  xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap uap3 desktop desktop6 rescap">
+  IgnorableNamespaces="uap uap3 desktop rescap">
 
   <Identity
     Name="KawaiiInosuke.Cerebra"
@@ -24,10 +23,10 @@
     <DisplayName>Cerebra</DisplayName>
     <PublisherDisplayName>Kawaii Inosuke</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
-    <!-- Cerebra edits real files outside its package (your library folder, and the settings files of
-         Claude Desktop, Codex and Cursor when you connect them), so Windows must not redirect its writes. -->
-    <desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
-    <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
+    <!-- Windows virtualizes this package's writes to %APPDATA% (Microsoft declined the
+         unvirtualizedResources capability). Cerebra's own data lives there and stays consistent for the
+         app and its connector; only Claude Desktop, whose settings are in %APPDATA%, is set up by hand
+         (see connector::manual_setup). -->
   </Properties>
 
   <Dependencies>
@@ -68,6 +67,5 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
-    <rescap:Capability Name="unvirtualizedResources" />
   </Capabilities>
 </Package>

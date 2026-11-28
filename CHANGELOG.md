@@ -2,6 +2,14 @@
 
 All notable changes are listed here ([Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format).
 
+## [0.1.1] - 2026-11-28
+
+### Changed
+- **Microsoft Store version:** Claude Desktop is set up by hand (Connect your AI → Claude Desktop → Set up →
+  Copy setup, then paste it into Claude Desktop's settings). The Store doesn't let apps change other apps'
+  settings in AppData, so the package no longer asks for that permission. Claude Code, Codex and Cursor still
+  connect in one click, and nothing changes in the GitHub version.
+
 ## [0.1.0] - 2026-11-27
 
 ### Added

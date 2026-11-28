@@ -121,6 +121,14 @@ fn write(file: &Path, text: &str) -> Result<(), String> {
     std::fs::write(file, text).map_err(|e| format!("Couldn't save {}: {e}", file.display()))
 }
 
+/// Whether this app must be set up by hand rather than with one click. The Microsoft Store version of
+/// Cerebra runs with Windows' file virtualization, so its changes inside %APPDATA% (where Claude Desktop
+/// keeps its settings) would land in Cerebra's private copy and Claude Desktop would never see them.
+/// The other apps keep their settings in the user's home folder, which isn't virtualized.
+pub fn manual_setup(app: AiApp, store_install: bool) -> bool {
+    store_install && app == AiApp::ClaudeDesktop
+}
+
 /// Is Cerebra set up in this app?
 pub fn status(app: AiApp, p: &Paths) -> bool {
     let file = target_file(app, p);
@@ -191,6 +199,18 @@ pub fn disconnect(app: AiApp, p: &Paths) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn store_install_sets_up_claude_desktop_by_hand() {
+        // Store apps can't change files in %APPDATA% for other apps, where Claude Desktop keeps its settings.
+        assert!(manual_setup(AiApp::ClaudeDesktop, true));
+        for app in [AiApp::ClaudeCode, AiApp::Codex, AiApp::Cursor] {
+            assert!(!manual_setup(app, true), "{app:?}");
+        }
+        for app in AiApp::ALL {
+            assert!(!manual_setup(app, false), "{app:?}");
+        }
+    }
 
     fn paths() -> (tempfile::TempDir, Paths) {
         let d = tempfile::tempdir().unwrap();

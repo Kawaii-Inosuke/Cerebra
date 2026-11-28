@@ -28,6 +28,35 @@ describe("Connect your AI", () => {
     await waitFor(() => expect(connectorDisconnect).toHaveBeenCalledWith("claude_code"));
   });
 
+  it("Store version: sets up Claude Desktop by hand with a copyable snippet", async () => {
+    const connectorConnect = vi.fn(async () => null);
+    const exe = "C:\\Users\\me\\AppData\\Local\\Microsoft\\WindowsApps\\cerebra.exe";
+    const api = createFakeApi({
+      connectorConnect,
+      connectorStatus: vi.fn(async () => ({
+        claude_desktop: { connected: false, config: "C:\\Users\\me\\AppData\\Roaming\\Claude\\claude_desktop_config.json", command: exe, manual: true },
+        claude_code: { connected: false, config: "C:\\Users\\me\\.claude.json", command: exe, manual: false },
+        codex: { connected: false, config: "C:\\Users\\me\\.codex\\config.toml", command: exe, manual: false },
+        cursor: { connected: false, config: "C:\\Users\\me\\.cursor\\mcp.json", command: exe, manual: false },
+      })),
+    });
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, "writeText");
+    renderApp(<ConnectAI />, api);
+
+    const desktop = await screen.findByTestId("app-claude_desktop");
+    expect(within(desktop).queryByRole("button", { name: /^Connect$/ })).not.toBeInTheDocument();
+    await user.click(within(desktop).getByRole("button", { name: /Set up/ }));
+    expect(within(desktop).getByText(/Settings/)).toBeInTheDocument();
+    expect(within(desktop).getByText(/Edit Config/)).toBeInTheDocument();
+    await user.click(within(desktop).getByRole("button", { name: /Copy setup/ }));
+    const copied = JSON.parse(writeText.mock.calls[0]![0]);
+    expect(copied).toEqual({ mcpServers: { cerebra: { command: exe, args: ["mcp"] } } });
+    expect(connectorConnect).not.toHaveBeenCalled();
+    // The other apps still connect in one click.
+    expect(within(screen.getByTestId("app-codex")).getByRole("button", { name: /Connect/ })).toBeInTheDocument();
+  });
+
   it("copies a context pack for a question", async () => {
     const contextPack = vi.fn(async () => ({ text: "## Osmosis\nWater moves…", tokens: 120, sources: [] }));
     const user = userEvent.setup();

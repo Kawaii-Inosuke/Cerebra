@@ -111,6 +111,17 @@ fn store_alias(current: &Path, local_appdata: Option<String>) -> Option<PathBuf>
     })
 }
 
+/// Running as the Microsoft Store (MSIX) version.
+fn is_store_install() -> bool {
+    cfg!(windows)
+        && std::env::current_exe()
+            .ok()
+            .and_then(|c| store_alias(&c, std::env::var("LOCALAPPDATA").ok()))
+            .is_some()
+}
+
+const MANUAL_SETUP: &str = "In the Microsoft Store version, Claude Desktop is set up by hand: copy the setup text in Cerebra and paste it into Claude Desktop (Settings, Developer, Edit Config)";
+
 fn app_exe() -> PathBuf {
     let current = std::env::current_exe().unwrap_or_else(|_| PathBuf::from("cerebra"));
     if cfg!(windows)
@@ -412,6 +423,7 @@ fn set_zoom(zoom: f64, app: AppHandle) -> Result<f64, String> {
 fn connector_status() -> Result<Value, String> {
     let p = connector::Paths::system().ok_or("Couldn't find your home folder")?;
     let exe = app_exe().to_string_lossy().into_owned();
+    let store = is_store_install();
     let mut m = serde_json::Map::new();
     for app in connector::AiApp::ALL {
         m.insert(
@@ -420,6 +432,7 @@ fn connector_status() -> Result<Value, String> {
                 "connected": connector::status(app, &p),
                 "config": connector::target_file(app, &p),
                 "command": exe,
+                "manual": connector::manual_setup(app, store),
             }),
         );
     }
@@ -429,6 +442,9 @@ fn connector_status() -> Result<Value, String> {
 #[tauri::command]
 fn connector_connect(app: String) -> Result<(), String> {
     let a = connector::AiApp::parse(&app).ok_or("Unknown app")?;
+    if connector::manual_setup(a, is_store_install()) {
+        return Err(MANUAL_SETUP.into());
+    }
     let p = connector::Paths::system().ok_or("Couldn't find your home folder")?;
     connector::connect(a, &p, &app_exe().to_string_lossy())
 }
@@ -436,6 +452,9 @@ fn connector_connect(app: String) -> Result<(), String> {
 #[tauri::command]
 fn connector_disconnect(app: String) -> Result<(), String> {
     let a = connector::AiApp::parse(&app).ok_or("Unknown app")?;
+    if connector::manual_setup(a, is_store_install()) {
+        return Err("In the Microsoft Store version, remove Cerebra from Claude Desktop by hand: delete the \"cerebra\" entry in Claude Desktop (Settings, Developer, Edit Config)".into());
+    }
     let p = connector::Paths::system().ok_or("Couldn't find your home folder")?;
     connector::disconnect(a, &p)
 }

@@ -325,6 +325,8 @@ export interface ConnectorApp {
   command?: string | null;
   /** The app's config file Cerebra edits (null when unknown). */
   config: string | null;
+  /** Set up by hand instead of one click (Claude Desktop in the Microsoft Store version). */
+  manual?: boolean;
 }
 
 export type ConnectorStatus = Record<AiApp, ConnectorApp>;

@@ -1,4 +1,4 @@
-import { Check, Copy, Plug, RotateCw } from "lucide-react";
+import { Check, ChevronDown, Copy, Plug, RotateCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { AI_APPS, type AiApp, type ConnectorStatus } from "../api";
 import { inputClass } from "../components/AddSource";
@@ -39,6 +39,7 @@ export function ConnectCards({ compact = false }: { compact?: boolean }) {
   const [busy, setBusy] = useState<AiApp | null>(null);
   const [restart, setRestart] = useState<Set<AiApp>>(new Set());
   const [confirm, setConfirm] = useState<AiApp | null>(null);
+  const [setup, setSetup] = useState<AiApp | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -86,7 +87,12 @@ export function ConnectCards({ compact = false }: { compact?: boolean }) {
                 </span>
               )}
               <span className="ml-auto flex gap-1.5">
-                {s?.connected ? (
+                {s?.manual ? (
+                  <Button size="sm" variant={s.connected ? "ghost" : "primary"} onClick={() => setSetup(setup === app ? null : app)} aria-expanded={setup === app}>
+                    {s.connected ? "Setup" : "Set up"}
+                    <ChevronDown className={cx("size-3.5 transition-transform", setup === app && "rotate-180")} aria-hidden />
+                  </Button>
+                ) : s?.connected ? (
                   confirm === app ? (
                     <>
                       <Button size="sm" variant="danger" onClick={() => void act(app, false)} disabled={busy === app}>
@@ -109,6 +115,7 @@ export function ConnectCards({ compact = false }: { compact?: boolean }) {
               </span>
             </div>
             <p className="text-[12.5px] text-muted-strong">{info.blurb}</p>
+            {s?.manual && setup === app && <ManualSetup app={app} command={s.command ?? null} connected={s.connected} />}
             {restart.has(app) && (
               <p role="status" className="flex items-center gap-1.5 text-[12.5px] font-medium text-accent-text">
                 <RotateCw className="size-3.5" aria-hidden /> Restart {info.name} to {s?.connected ? "load" : "unload"} Cerebra.
@@ -119,6 +126,50 @@ export function ConnectCards({ compact = false }: { compact?: boolean }) {
         );
       })}
     </ul>
+  );
+}
+
+/** The setup text for an app that can't be changed in one click: the same entry Connect would write. */
+export function setupSnippet(command: string | null): string {
+  return JSON.stringify({ mcpServers: { cerebra: { command: command ?? "<path to the Cerebra app>", args: ["mcp"] } } }, null, 2);
+}
+
+/**
+ * Claude Desktop in the Microsoft Store version: Windows doesn't let Store apps change other apps' settings
+ * in AppData, so the person pastes the setup into Claude Desktop themselves.
+ */
+function ManualSetup({ app, command, connected }: { app: AiApp; command: string | null; connected: boolean }) {
+  const toast = useToast();
+  const snippet = setupSnippet(command);
+  const name = APP_INFO[app].name;
+  return (
+    <div className="flex flex-col gap-2 rounded-input border border-border bg-surface-2 p-3 text-[12.5px] text-muted-strong">
+      {connected ? (
+        <p>
+          {name} is set up. To remove Cerebra, open {name} → <b>Settings</b> → <b>Developer</b> → <b>Edit Config</b>, delete the <code className="font-mono">"cerebra"</code> entry, save, and restart {name}.
+        </p>
+      ) : (
+        <ol className="flex list-decimal flex-col gap-1 pl-4">
+          <li>
+            Click <b>Copy setup</b> below.
+          </li>
+          <li>
+            In {name}, open <b>Settings</b> → <b>Developer</b> → <b>Edit Config</b>. This opens its settings file.
+          </li>
+          <li>
+            Paste it into the file and save. If the file already has <code className="font-mono">"mcpServers"</code>, add only the <code className="font-mono">"cerebra"</code> part inside it.
+          </li>
+          <li>Restart {name}.</li>
+        </ol>
+      )}
+      <pre className="overflow-x-auto rounded-md border border-border bg-surface p-2 font-mono text-[11.5px] text-fg">{snippet}</pre>
+      <div>
+        <Button size="sm" onClick={() => void copyText(snippet).then((ok) => toast.show(ok ? { title: "Setup copied", description: `Paste it into ${name}'s settings file.`, duration: 2500 } : { kind: "error", title: "Couldn't copy", description: "Select the text and copy it instead." }))}>
+          <Copy className="size-3.5" aria-hidden /> Copy setup
+        </Button>
+      </div>
+      <p className="text-[11.5px] text-muted">The Microsoft Store version of Cerebra can't change {name}'s settings for you, so this one is set up by hand.</p>
+    </div>
   );
 }
 
@@ -154,7 +205,7 @@ export function ConnectAI() {
       .then((s) => setCommand(Object.values(s).find((a) => a?.command)?.command ?? null))
       .catch(() => {});
   }, [api]);
-  const snippet = JSON.stringify({ mcpServers: { cerebra: { command: command ?? "<path to the Cerebra app>", args: ["mcp"] } } }, null, 2);
+  const snippet = setupSnippet(command);
 
   return (
     <main className="min-h-0 flex-1 overflow-y-auto">
