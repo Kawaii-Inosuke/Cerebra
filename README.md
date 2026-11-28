@@ -35,10 +35,12 @@ Then ask Claude Desktop or Codex about everything you know, answered from your o
 Download the installer for your system from the [Releases](../../releases) page, then see
 "First launch" below (builds aren't code-signed yet).
 
-**Code signing:** Windows releases are signed through the [SignPath Foundation](https://signpath.org)
-(free code signing for open-source projects, provided by [SignPath.io](https://about.signpath.io);
-our application is pending). Until then, Windows builds are unsigned. See the
-[code signing policy](CODE_SIGNING_POLICY.md).
+**Code signing:** the Windows installers on GitHub aren't code-signed yet, so Windows may show
+"Windows protected your PC" the first time (click **More info → Run anyway**; see "First launch" below).
+The Microsoft Store version is signed by Microsoft and shows no warning. We plan to sign GitHub releases
+through the [SignPath Foundation](https://signpath.org) (free code signing for open-source projects,
+provided by [SignPath.io](https://about.signpath.io)) once the project is established enough for their
+program. See the [code signing policy](CODE_SIGNING_POLICY.md).
 
 ## Build from source
 
