@@ -1,6 +1,6 @@
 [project]
 name = "cerebra-agents"
-version = "0.1.1"
+version = "0.1.2"
 description = "Cerebra's background agents: connect notes with Strands Agents over a stdio JSON-RPC sidecar."
 readme = "README.md"
 license = "MIT"

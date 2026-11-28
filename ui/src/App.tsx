@@ -13,6 +13,7 @@ import { Sidebar } from "./components/Sidebar";
 import { ToastProvider, useToast } from "./components/Toast";
 import { TopBar } from "./components/TopBar";
 import { TourProvider } from "./components/Tour";
+import { UpdateProvider } from "./components/UpdatePrompt";
 import { Spinner } from "./components/ui";
 import { ApiProvider, LibraryProvider, PrefsProvider, ShellProvider, useApi, useLibrary, useShell } from "./context";
 import { navigate, useRoute, type Route } from "./lib/router";
@@ -134,11 +135,13 @@ function Gate() {
         <AgentsProvider>
           <WithActions>
             <ShareProvider initialImport={pendingImport}>
-            <AboutProvider>
-              <TourProvider>
-                <Shell />
-              </TourProvider>
-            </AboutProvider>
+            <UpdateProvider>
+              <AboutProvider>
+                <TourProvider>
+                  <Shell />
+                </TourProvider>
+              </AboutProvider>
+            </UpdateProvider>
             </ShareProvider>
           </WithActions>
         </AgentsProvider>

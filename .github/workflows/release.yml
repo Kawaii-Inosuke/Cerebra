@@ -58,8 +58,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # macOS: free ad-hoc signing only (no paid Apple certificate; see README "First launch").
           APPLE_SIGNING_IDENTITY: "-"
+          # In-app updates: each update is signed with this key (made with `tauri signer generate`; only the
+          # maintainer has it). The app checks the signature against the public key in tauri.conf.json.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
         with:
           tagName: ${{ github.ref_name }}
+          # Publishes latest.json, the file the app reads to find a newer version.
+          includeUpdaterJson: true
           releaseName: Cerebra ${{ github.ref_name }}
           releaseBody: |
             See CHANGELOG.md for what's new.

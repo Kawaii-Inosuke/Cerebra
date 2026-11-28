@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Cerebra",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "identifier": "app.cerebra.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -57,6 +57,18 @@
         "role": "Viewer",
         "mimeType": "application/x-cerebra"
       }
-    ]
+    ],
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJDMTExMEZBQUQ1MEIxMTcKUldRWHNWQ3QraEFSdlAzakNDSytGMi9BUzlIOTc0WXZSaHdxWlJHZ2kvR0xHc3FGeWQvYnVldDYK",
+      "endpoints": [
+        "https://github.com/Kawaii-Inosuke/Cerebra/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }

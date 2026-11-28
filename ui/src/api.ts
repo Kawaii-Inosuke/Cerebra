@@ -4,6 +4,7 @@
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { applyCssZoom, clampZoom, DEFAULT_ZOOM, ZOOM_KEY } from "./lib/zoom";
+import type { UpdateInfo } from "./lib/updates";
 import { withPreviewMock } from "./previewMock";
 
 // ---------- Contract types (Phase 1 plan, "UI ⇄ engine contract") ----------
@@ -567,6 +568,12 @@ export interface Api {
   openExternal(url: string): Promise<void>;
   /** Open a library file in the app that normally opens it. */
   openLibraryFile(path: string): Promise<void>;
+  /** A newer version, or null (desktop only; always null in the browser preview and development builds). */
+  updateCheck(): Promise<UpdateInfo | null>;
+  /** Install it: in place and restart (GitHub installs), or through the Microsoft Store. */
+  updateInstall(): Promise<void>;
+  /** Download progress while installing in place. */
+  onUpdateProgress(cb: (p: { done: number; total: number | null }) => void): () => void;
   onFileDrop(cb: (paths: string[], at?: { x: number; y: number }) => void): () => void;
 
   fileUrl(path: string): string;
@@ -672,6 +679,16 @@ export function createApi(t: Transport = createTransport()): Api {
     },
     uploadPaths: (collection, paths) => t.app("upload_paths", { collection, paths }) as Promise<UploadPathResult[]>,
     openExternal: (url) => t.openUrl(url),
+    async updateCheck() {
+      if (!t.desktop) return null;
+      const r = await t.app("update_check");
+      return r && typeof r === "object" ? (r as UpdateInfo) : null;
+    },
+    async updateInstall() {
+      if (!t.desktop) return;
+      await t.app("update_install");
+    },
+    onUpdateProgress: (cb) => t.listen<{ done: number; total: number | null }>("update-progress", cb),
     async openLibraryFile(path) {
       if (t.desktop) await t.app("open_library_file", { path });
       else window.open(t.fileUrl(path), "_blank", "noopener,noreferrer");

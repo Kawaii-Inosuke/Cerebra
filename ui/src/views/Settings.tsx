@@ -4,9 +4,11 @@ import type { AppState, ModelsProgress } from "../api";
 import { useAbout } from "../components/About";
 import { useToast } from "../components/Toast";
 import { useTour } from "../components/Tour";
-import { Button } from "../components/ui";
+import { useUpdates } from "../components/UpdatePrompt";
+import { Button, Switch } from "../components/ui";
 import { useApi, useLibrary, usePrefs } from "../context";
 import { appVersion } from "../lib/appInfo";
+import { autoCheck, setAutoCheck } from "../lib/updates";
 import type { Density, ThemePref } from "../lib/theme";
 import { cx, errorMessage, modKey, plural } from "../lib/util";
 import { nearestStep, ZOOM_STEPS, zoomLabel } from "../lib/zoom";
@@ -22,6 +24,9 @@ export function Settings({ onSwitchLibrary }: { onSwitchLibrary?: () => void }) 
   const [version, setVersion] = useState<string | null>(null);
   const about = useAbout();
   const tour = useTour();
+  const updates = useUpdates();
+  const [autoUpdates, setAutoUpdates] = useState(autoCheck);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     void appVersion(api.desktop).then(setVersion);
@@ -152,6 +157,27 @@ export function Settings({ onSwitchLibrary }: { onSwitchLibrary?: () => void }) 
           <Row label="Guided tour" description="A one-minute walk through the main screens. Skip it at any step.">
             <Button onClick={() => tour?.start()} disabled={!tour}>
               <Compass className="size-3.5" aria-hidden /> Take the tour
+            </Button>
+          </Row>
+          <Row label="Check for updates automatically" description="When Cerebra starts, it asks for a newer version and offers to install it. The check only contacts GitHub, or the Microsoft Store for the Store version.">
+            <Switch
+              label="Check for updates automatically"
+              checked={autoUpdates}
+              onChange={(v) => {
+                setAutoCheck(v);
+                setAutoUpdates(v);
+              }}
+            />
+          </Row>
+          <Row label="Updates" description={api.desktop ? `You have version ${version ?? "…"}.` : "Updates work in the desktop app."}>
+            <Button
+              onClick={() => {
+                setChecking(true);
+                void updates?.checkNow().finally(() => setChecking(false));
+              }}
+              disabled={!api.desktop || !updates || checking}
+            >
+              <RefreshCw className={cx("size-3.5", checking && "animate-spin")} aria-hidden /> {checking ? "Checking…" : "Check now"}
             </Button>
           </Row>
           <Row label="About Cerebra" description={`Version ${version ?? "…"}. Licence, credits, and details for a bug report.`}>

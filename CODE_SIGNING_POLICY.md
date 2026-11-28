@@ -25,8 +25,9 @@ All team members use multi-factor authentication on GitHub and SignPath.
 
 This program will not transfer any information to other networked systems unless specifically
 requested by the user or the person installing or operating it. In practice, Cerebra only connects
-to the AI services the user adds, downloads its local models once when the user asks, and opens
-links in the user's browser. Details: [docs/PRIVACY.md](docs/PRIVACY.md).
+to the AI services the user adds, downloads its local models once when the user asks, opens
+links in the user's browser, and checks for a new version at start (no personal data is sent; it can be
+turned off in Settings, and updates are only installed when the user chooses to). Details: [docs/PRIVACY.md](docs/PRIVACY.md).
 
 ## Report a problem
 

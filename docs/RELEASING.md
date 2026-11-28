@@ -13,10 +13,11 @@ first public release and Windows trust. Background and decisions: [doc 12 §5](1
       for macOS and Windows builds, SignPath and the Store listing all need a public repository.
 - [ ] **Two-factor authentication** on your GitHub account (SignPath requires it for everyone with write access).
 - [ ] **CI green** on `main`.
-- [ ] **In-app updates (not built yet).** The Tauri updater plugin isn't added. When it is, generate its free
-      signing key with `npx tauri signer generate -w ~/.tauri/cerebra.key` and keep the private key only
-      in the repository secret `TAURI_SIGNING_PRIVATE_KEY`. Until then, About → "Check for a newer
-      version" opens the latest GitHub release.
+- [ ] **In-app updates (from 0.1.2).** GitHub installs check `latest.json` in the latest release and install
+      signed updates. The private signing key is `~/.tauri/cerebra-updater.key` on the maintainer's computer
+      (back it up: without it, existing installs can't be updated) and the repository secret
+      `TAURI_SIGNING_PRIVATE_KEY`. The public key is in `src-tauri/tauri.conf.json`. A release without the
+      secret fails, because the build signs every update. The Microsoft Store version asks the Store instead.
 
 ## 2. Publish a version
 

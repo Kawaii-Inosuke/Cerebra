@@ -1,9 +1,10 @@
 # Cerebra privacy policy
 
-*Last updated: 27 November 2026. Applies to Cerebra 0.1.0 and later, from GitHub or the Microsoft Store.*
+*Last updated: 28 November 2026. Applies to Cerebra 0.1.0 and later, from GitHub or the Microsoft Store.*
 
 **Short version: Cerebra collects nothing. Your notes, files and keys stay on your computer. The only
-things that leave it are the ones you choose to send to an AI service you set up yourself.**
+things that leave it are the ones you choose to send to an AI service you set up yourself, plus a check
+for new versions that sends nothing about you (you can turn it off).**
 
 ## What Cerebra does not do
 
@@ -35,11 +36,17 @@ things that leave it are the ones you choose to send to an AI service you set up
 3. **One-time model download.** The small models for search by meaning and for reading scans are
    downloaded once from Hugging Face (huggingface.co) when you first ask for them. No personal data is
    sent; Hugging Face sees an ordinary download request.
-4. **Links you click.** "Check for updates", "Report a problem" and similar buttons open a page in your
+4. **Update check.** A few seconds after it starts, Cerebra asks whether a newer version exists: the
+   version from GitHub downloads checks a small file on GitHub (`latest.json` in the latest release),
+   the Microsoft Store version asks the Microsoft Store. Nothing about you, your library or your keys is
+   sent; GitHub or Microsoft see an ordinary request. Updates are only installed when you choose
+   **Update now**, and GitHub updates are checked against Cerebra's signature first. Turn the check off in
+   **Settings → Help → Check for updates automatically**.
+5. **Links you click.** "Check for updates", "Report a problem" and similar buttons open a page in your
    web browser (for example on GitHub). Nothing is sent until you choose to submit something there.
    "Copy details for a bug report" only copies the app version, your operating system and the AI status
    to your clipboard, never keys, notes or file names.
-5. **Share files.** A `.cerebra` file you export contains the notes and connections you chose. You decide
+6. **Share files.** A `.cerebra` file you export contains the notes and connections you chose. You decide
    who gets it. You can protect it with a password.
 
 ## Children

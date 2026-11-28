@@ -2,6 +2,15 @@
 
 All notable changes are listed here ([Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format).
 
+## [0.1.2] - 2026-11-28
+
+### Added
+- **Update notifications.** A few seconds after start, Cerebra checks for a newer version and offers
+  **Update now**, **Later** (asks again tomorrow) or **Next time I open Cerebra**. GitHub installs download,
+  install and restart by themselves (signed updates); the Microsoft Store version asks the Store to install
+  it; Linux .deb and .rpm installs open the download page. Turn it off, or check by hand, in
+  Settings → Help.
+
 ## [0.1.1] - 2026-11-28
 
 ### Changed

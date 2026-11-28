@@ -290,6 +290,201 @@ fn restart(app: AppHandle) {
     app.restart();
 }
 
+// ---------- Updates ----------
+
+/// The main window's native handle (Windows only), for the Store's dialogs.
+fn window_handle(app: &AppHandle) -> isize {
+    #[cfg(windows)]
+    {
+        if let Some(w) = app.get_webview_window("main")
+            && let Ok(h) = w.hwnd()
+        {
+            return h.0 as isize;
+        }
+    }
+    let _ = app;
+    0
+}
+
+/// Updates through the Microsoft Store (the Store version on Windows), using the Store's own API:
+/// the app may ask the Store for its updates and ask the Store to install them.
+mod store_update {
+    #[cfg(windows)]
+    mod imp {
+        use windows::Services::Store::{StoreContext, StorePackageUpdateState};
+        use windows::Win32::Foundation::HWND;
+        use windows::Win32::UI::Shell::IInitializeWithWindow;
+        use windows::core::Interface;
+
+        fn context(window: isize) -> windows::core::Result<StoreContext> {
+            let ctx = StoreContext::GetDefault()?;
+            // Desktop apps must tell the Store which window owns its dialogs.
+            if window != 0 {
+                let init: IInitializeWithWindow = ctx.cast()?;
+                unsafe { init.Initialize(HWND(window as *mut core::ffi::c_void))? };
+            }
+            Ok(ctx)
+        }
+
+        pub fn check(window: isize) -> Result<Option<String>, String> {
+            let run = || -> windows::core::Result<Option<String>> {
+                let ctx = context(window)?;
+                let updates = ctx.GetAppAndOptionalStorePackageUpdatesAsync()?.get()?;
+                if updates.Size()? == 0 {
+                    return Ok(None);
+                }
+                let v = updates.GetAt(0)?.Package()?.Id()?.Version()?;
+                Ok(Some(format!("{}.{}.{}", v.Major, v.Minor, v.Build)))
+            };
+            run().map_err(|e| format!("Couldn't ask the Microsoft Store for updates: {e}"))
+        }
+
+        pub fn install(window: isize) -> Result<(), String> {
+            let run = || -> windows::core::Result<bool> {
+                let ctx = context(window)?;
+                let updates = ctx.GetAppAndOptionalStorePackageUpdatesAsync()?.get()?;
+                if updates.Size()? == 0 {
+                    return Ok(true);
+                }
+                let result = ctx
+                    .RequestDownloadAndInstallStorePackageUpdatesAsync(&updates)?
+                    .get()?;
+                Ok(result.OverallState()? == StorePackageUpdateState::Completed)
+            };
+            match run() {
+                Ok(true) => Ok(()),
+                Ok(false) => Err("The Microsoft Store didn't finish the update. Try again, or update Cerebra from the Store app".into()),
+                Err(e) => Err(format!("Couldn't update through the Microsoft Store: {e}")),
+            }
+        }
+    }
+
+    #[cfg(windows)]
+    pub use imp::{check, install};
+
+    #[cfg(not(windows))]
+    pub fn check(_window: isize) -> Result<Option<String>, String> {
+        Ok(None)
+    }
+
+    #[cfg(not(windows))]
+    pub fn install(_window: isize) -> Result<(), String> {
+        Err("Store updates are only on Windows".into())
+    }
+}
+
+/// How this copy of Cerebra gets new versions.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum UpdateMode {
+    /// The Microsoft Store version: ask the Store, which downloads and installs the update (Store apps
+    /// must not install updates themselves).
+    Store,
+    /// Download, install and restart from inside the app (GitHub installs).
+    InPlace,
+    /// A .deb or .rpm install can't replace itself: open the download page instead.
+    DownloadPage,
+}
+
+impl UpdateMode {
+    fn id(self) -> &'static str {
+        match self {
+            UpdateMode::Store => "store",
+            UpdateMode::InPlace => "in_place",
+            UpdateMode::DownloadPage => "download_page",
+        }
+    }
+}
+
+fn update_mode(store_install: bool, os: &str, appimage: bool) -> UpdateMode {
+    if store_install {
+        UpdateMode::Store
+    } else if os == "linux" && !appimage {
+        UpdateMode::DownloadPage
+    } else {
+        UpdateMode::InPlace
+    }
+}
+
+fn this_update_mode() -> UpdateMode {
+    let appimage = std::env::var("APPIMAGE").is_ok_and(|a| !a.is_empty());
+    update_mode(is_store_install(), std::env::consts::OS, appimage)
+}
+
+/// Is a newer version available? Store installs ask the Microsoft Store; other installs read the latest
+/// GitHub release. `null` when there isn't one (and always in development builds).
+#[tauri::command]
+async fn update_check(app: AppHandle) -> Result<Value, String> {
+    use tauri_plugin_updater::UpdaterExt;
+    let mode = this_update_mode();
+    if cfg!(debug_assertions) {
+        return Ok(Value::Null);
+    }
+    if mode == UpdateMode::Store {
+        let window = window_handle(&app);
+        return tauri::async_runtime::spawn_blocking(move || store_update::check(window))
+            .await
+            .map_err(|e| e.to_string())?
+            .map(|v| match v {
+                Some(version) => json!({ "version": version, "current": app.package_info().version.to_string(), "notes": null, "mode": mode.id() }),
+                None => Value::Null,
+            });
+    }
+    let update = app
+        .updater()
+        .map_err(|e| e.to_string())?
+        .check()
+        .await
+        .map_err(|e| format!("Couldn't check for updates: {e}"))?;
+    Ok(match update {
+        Some(u) => json!({
+            "version": u.version,
+            "current": u.current_version,
+            "notes": u.body,
+            "date": u.date.map(|d| d.to_string()),
+            "mode": mode.id(),
+        }),
+        None => Value::Null,
+    })
+}
+
+/// Install the newest version. GitHub installs download it here (progress as `update-progress`) and
+/// restart; Store installs hand it to the Microsoft Store, which shows its own progress and may restart
+/// Cerebra when it is done.
+#[tauri::command]
+async fn update_install(app: AppHandle) -> Result<(), String> {
+    use tauri_plugin_updater::UpdaterExt;
+    match this_update_mode() {
+        UpdateMode::Store => {
+            let window = window_handle(&app);
+            return tauri::async_runtime::spawn_blocking(move || store_update::install(window))
+                .await
+                .map_err(|e| e.to_string())?;
+        }
+        UpdateMode::DownloadPage => return Err("This copy of Cerebra can't update itself".into()),
+        UpdateMode::InPlace => {}
+    }
+    let update = app
+        .updater()
+        .map_err(|e| e.to_string())?
+        .check()
+        .await
+        .map_err(|e| format!("Couldn't check for updates: {e}"))?
+        .ok_or("Cerebra is already up to date")?;
+    let mut done: u64 = 0;
+    let progress = app.clone();
+    update
+        .download_and_install(
+            move |chunk, total| {
+                done += chunk as u64;
+                let _ = progress.emit("update-progress", json!({ "done": done, "total": total }));
+            },
+            || {},
+        )
+        .await
+        .map_err(|e| format!("The update didn't finish: {e}"))?;
+    app.restart();
+}
+
 #[tauri::command]
 fn sources_list(app: AppHandle, state: State<AppState>) -> Result<Value, String> {
     let list = Sources::load(&sources_file(&app)?).list;
@@ -656,6 +851,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(AppState::default())
         .setup(|app| {
             let handle = app.handle().clone();
@@ -685,6 +881,8 @@ pub fn run() {
             create_library,
             download_models,
             restart,
+            update_check,
+            update_install,
             sources_list,
             source_add,
             source_update,
@@ -720,6 +918,19 @@ mod tests {
         );
         assert_eq!(stable_exe(None, mount.clone()), mount);
         assert_eq!(stable_exe(Some(String::new()), mount.clone()), mount);
+    }
+
+    #[test]
+    fn how_each_install_updates() {
+        use UpdateMode::{DownloadPage, InPlace, Store};
+        // Store installs ask the Microsoft Store, which downloads and installs the update itself.
+        assert_eq!(update_mode(true, "windows", false), Store);
+        // Windows and macOS installers, and the Linux AppImage, replace themselves.
+        assert_eq!(update_mode(false, "windows", false), InPlace);
+        assert_eq!(update_mode(false, "macos", false), InPlace);
+        assert_eq!(update_mode(false, "linux", true), InPlace);
+        // .deb and .rpm installs can't: the download page opens instead.
+        assert_eq!(update_mode(false, "linux", false), DownloadPage);
     }
 
     #[test]
