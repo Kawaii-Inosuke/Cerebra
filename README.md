@@ -18,6 +18,10 @@
 </p>
 
 <p align="center">
+  <a href="https://glama.ai/mcp/servers/Kawaii-Inosuke/Cerebra"><img alt="Cerebra MCP server on Glama" src="https://glama.ai/mcp/servers/Kawaii-Inosuke/Cerebra/badges/score.svg"></a>
+</p>
+
+<p align="center">
   <a href="https://github.com/Kawaii-Inosuke/Cerebra/releases/latest"><b>Download</b></a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#connect-claude-codex-or-cursor">Connect your AI</a> ·
